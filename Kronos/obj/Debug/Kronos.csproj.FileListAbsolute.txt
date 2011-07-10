@@ -1,0 +1,6 @@
+F:\CodeChamber\Kronos\Kronos\bin\Debug\Kronos.dll
+F:\CodeChamber\Kronos\Kronos\bin\Debug\Kronos.pdb
+F:\CodeChamber\Kronos\Kronos\bin\Debug\BattleShip.Interface.dll
+F:\CodeChamber\Kronos\Kronos\obj\Debug\ResolveAssemblyReference.cache
+F:\CodeChamber\Kronos\Kronos\obj\Debug\Kronos.dll
+F:\CodeChamber\Kronos\Kronos\obj\Debug\Kronos.pdb
