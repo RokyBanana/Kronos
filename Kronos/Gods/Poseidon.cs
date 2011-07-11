@@ -11,12 +11,6 @@ namespace Kronos.Gods
 {
   public class Poseidon : God
   {
-    #region Fields
-
-    private List<Coordinate> _pathOfPoseidon;
-
-    #endregion
-
     #region Properties
 
     public override string Name { get { return "Poseidon"; } }

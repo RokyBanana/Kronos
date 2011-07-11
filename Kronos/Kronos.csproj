@@ -50,6 +50,8 @@
     <Compile Include="Minions\Minion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Minions\Triton.cs" />
+    <Compile Include="Worlds\World.Map.cs" />
+    <Compile Include="Worlds\World.Map.Position.cs" />
     <Compile Include="Worlds\World.Observer.cs" />
     <Compile Include="Worlds\World.cs" />
   </ItemGroup>

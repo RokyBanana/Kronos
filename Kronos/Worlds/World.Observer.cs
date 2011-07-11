@@ -5,68 +5,60 @@ using System.Text;
 
 using BattleShip.Interface;
 
+using Kronos.Worlds.Maps;
+
 namespace Kronos.Worlds
 {
   public class Observer
   {
-    public World World { get; set; }
+    private World _world;
 
-    public Observer(God god) { }
+    public Observer(World world)
+    {
+      _world = world;
+    }
 
     public void Show()
     {
       Console.Clear();
 
-      string        _mark = "";
+      string mark = "";
       StringBuilder viewArea = new StringBuilder();
-      World          zone;
-      State         state;
-      Coordinate    lastShot;
 
-      for (int _y = World.Boundaries.North; _y >= 1; _y--)
+      for (int _y = _world.Boundaries.North; _y >= _world.Boundaries.South; _y--)
       {
         viewArea.Append("    ");
 
-        if (_y == World.Boundaries.North)
-          for (int _x = 1; _x <= World.Boundaries.East; _x++)
+        if (_y == _world.Boundaries.North)
+          for (int _x = _world.Boundaries.West; _x <= _world.Boundaries.East; _x++)
             viewArea.Append(_x).Append(" ");
 
         viewArea.AppendLine();
         viewArea.Append(_y.ToString().PadLeft(2)).Append(": ");
 
-        for (int _x = 1; _x <= World.Boundaries.East; _x++)
+        for (int _x = _world.Boundaries.West; _x <= _world.Boundaries.East; _x++)
         {
-          zone = null;
-
-          if (zone == null)
-            state = State.Hidden;
-          else
-            state = zone.State;
-
-          switch (state)
+          switch (_world.Map.StatusAt(_x, _y))
           {
-            case State.Hidden:
-              _mark = ". ";
+            case Status.Hidden:
+              mark = ". ";
               break;
-            case State.Visited:
-              _mark = "o ";
+            case Status.Explored:
+              mark = "o ";
               break;
-            case State.Destroyed:
-              _mark = "X ";
+            case Status.Defiled:
+              mark = "X ";
               break;
           }
 
-          viewArea.Append(_mark);
+          viewArea.Append(mark);
         }
 
         viewArea.AppendLine();
         viewArea.AppendLine();
       }
 
-      lastShot = World.RandomCoordinate;
-
-      viewArea.Append("Last shot: ").Append(lastShot.X).Append(",").Append(lastShot.Y).AppendLine();
-      viewArea.AppendLine(string.Concat("Shots fired: ", World.Impacts));
+      viewArea.AppendLine(string.Concat("Shots fired: ", _world.Impacts.Count));
 
       Console.Write(viewArea.ToString());
       Console.ReadKey();

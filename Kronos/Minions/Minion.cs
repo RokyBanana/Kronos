@@ -9,4 +9,10 @@ namespace Kronos.Minions
   {
     public abstract string Name { get; set; }
   }
+
+  public enum Status
+  {
+    Hunting,
+    Tracking
+  }
 }
