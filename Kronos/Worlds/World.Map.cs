@@ -23,9 +23,7 @@ namespace Kronos.Worlds
 
     internal Status StatusAt(int latitude, int longitude)
     {
-      Position position = _positions.Find(p => p.Coordinate.X == latitude && p.Coordinate.Y == longitude);
-
-      return position.Status;
+      return _positions.Single<Position>(p => p.Coordinate.X == latitude && p.Coordinate.Y == longitude).Status;
     }
 
     internal void Update(Coordinate coordinate, Status status)

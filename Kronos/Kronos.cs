@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using System.Collections.Generic;
 
 using BattleShip.Interface;
@@ -33,15 +32,13 @@ namespace Kronos
       World.Map = new Map(World.Boundaries);
       World.Create(playerView, ships);
 
-      God.Playground = World;
+      God.World = World;
+      God.Dominate();
     }
 
     public void ShotFeedback(int hits, int sunkShips)
     {
-      if (hits > 0)
-        World.Map.Update(World.Impacts[World.Impacts.Count - 1], Status.Defiled);
-      else
-        World.Map.Update(World.Impacts[World.Impacts.Count - 1], Status.Explored);
+      God.EvaluateBattleField(hits,sunkShips);
 
       Observer.Show();
     }
@@ -49,8 +46,6 @@ namespace Kronos
     public Shot YourTurn(IPlayerView playerView)
     {
       Shot shot = God.Smites(playerView);
-
-      World.Impacts.Add(shot);
 
       return shot;
     }

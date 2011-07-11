@@ -15,19 +15,13 @@ namespace Kronos
     #region Properties
 
     public override string Name { get; set; }
-    public God Father { get; set; }
     public World World { get; set; }
 
     #endregion
 
     public Triton() { }
-    public Triton( God father ) {Father = father;}
 
     #region Methods
-
-    internal void TrackPrey( int hits )
-    {
-    }
 
     public Coordinate HuntingAt()
     {

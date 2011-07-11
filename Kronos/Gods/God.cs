@@ -12,9 +12,19 @@ namespace Kronos
   public abstract class God
   {
     public abstract string Name { get; }
-    public abstract World Playground { get; set; }
+    public abstract World World { get; set; }
+    public abstract Coordinate LastSmite { get; set; }
 
-    public virtual Shot Smites(IPlayerView world) { return new Shot(1,1); }
+    public abstract void Dominate();
+    public abstract void EvaluateBattleField(int casualties, int defiles);
+    public virtual Shot Smites(IPlayerView world)
+    {
+      Shot shot = new Shot(World.RandomCoordinate.X, World.RandomCoordinate.Y);
+
+      World.Impacts.Add(shot);
+
+      return shot;
+    }
   }
 }
 
