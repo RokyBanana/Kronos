@@ -43,7 +43,7 @@ namespace Kronos.Minions
       }
     }
 
-    public void ReGroup()
+    public void Regroup()
     {
       Coordinate = new Coordinate(StartPosition);
       Turn();

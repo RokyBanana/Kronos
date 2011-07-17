@@ -21,27 +21,25 @@ namespace Kronos.Gods
 
     public Poseidon() { }
 
-    public override void EvaluateBattleField(int casualties, int defiles)
+    public override void EvaluateBattlefield(int casualties, int defiles)
     {
       if (casualties == 0)
         _minion.CoverTracks(new Position(Target, Status.Explored));
 
       if (casualties > 0)
       {
-        _minion.CoverTracks(new Position(Target, Status.Damaged));
-        _minion.RecieveOrders(Orders.Kill);
-
         _killHistory.Add(Target);
+        _minion.CoverTracks(new Position(Target, Status.Damaged));
+        _minion.ReceiveOrders(OrderType.Kill);
       }
 
       if (defiles == 1)
       {
-        _minion.CoverTracks(new Position(Target, Status.Damaged));
-        _minion.RecieveOrders(Orders.Hunt);
-
         _killHistory.Add(Target);
+        _minion.CoverTracks(new Position(Target, Status.Damaged));
+        _minion.ReceiveOrders(OrderType.Hunt);
 
-        RevealEnemy();
+        UseDivinePower();
       }
 
       Observer.Show(World.Map);
@@ -51,7 +49,7 @@ namespace Kronos.Gods
     {
       Minion minion = new Minion();
 
-      minion.BattleField = World.Map;
+      minion.Battlefield = World.Map;
       minion.ReadyForBattle();
 
       _minions.Add(minion);
@@ -60,10 +58,10 @@ namespace Kronos.Gods
 
     public override Shot Smites()
     {
-      if (_minion.Order == Orders.Retire)
+      if (_minion.Order == OrderType.Retire)
         _minions.Remove(_minion);
 
-      _minion.CarryOutHisWill();
+      _minion.ObeyOrder();
       Target = _minion.Target;
 
       Shot shot = new Shot(Target.X, Target.Y);
@@ -71,7 +69,7 @@ namespace Kronos.Gods
       return shot;
     }
 
-    private void RevealEnemy()
+    private void UseDivinePower()
     {
       Coordinate enemyBox;
 
@@ -85,15 +83,15 @@ namespace Kronos.Gods
             if (World.Map.IsOutside(enemyBox))
               continue;
 
-            _minion.BattlePlan.RemoveAll(c => c.X == enemyBox.X && c.Y == enemyBox.Y);
+            _minion.RemovePath(c => c.X == enemyBox.X && c.Y == enemyBox.Y);
 
             if (World.Map.StatusAt(enemyBox) == Status.Hidden)
-              _minion.BattleField.Update(enemyBox, Status.Explored);
+              _minion.Battlefield.Update(enemyBox, Status.Explored);
           }
       }
 
       foreach (Coordinate coordinate in _killHistory)
-        _minion.BattleField.Update(coordinate, Status.Defiled);
+        _minion.Battlefield.Update(coordinate, Status.Defiled);
 
       _killHistory.Clear();
     }

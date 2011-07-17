@@ -9,14 +9,12 @@ using Kronos.Worlds.Maps;
 
 namespace Kronos
 {
-  public class GodFather : IPlayer
+  public class Godfather : IPlayer
   {
-    public static Random Dice = new Random(Environment.TickCount);
-
     public God God { get; private set; }
     public World World { get; private set; }
 
-    public GodFather()
+    public Godfather()
     {
       God = Olympus.SendGod();
       World = new World();
@@ -38,7 +36,7 @@ namespace Kronos
 
     public void ShotFeedback(int hits, int sunkShips)
     {
-      God.EvaluateBattleField(hits, sunkShips);
+      God.EvaluateBattlefield(hits, sunkShips);
     }
 
     public Shot YourTurn(IPlayerView playerView)

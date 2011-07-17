@@ -11,7 +11,7 @@ namespace Kronos.Gods
     public abstract Coordinate Target { get; set; }
 
     public abstract void Play();
-    public abstract void EvaluateBattleField(int casualties, int defiles);
+    public abstract void EvaluateBattlefield(int casualties, int defiles);
     public virtual Shot Smites()
     {
       Shot shot = new Shot(World.RandomCoordinate.X, World.RandomCoordinate.Y);

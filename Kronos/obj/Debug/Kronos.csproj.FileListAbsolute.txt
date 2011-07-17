@@ -6,3 +6,5 @@ F:\CodeChamber\Kronos\Kronos\obj\Debug\Kronos.dll
 F:\CodeChamber\Kronos\Kronos\obj\Debug\Kronos.pdb
 F:\CodeChamber\BattleShip_v1.2\Kronos.dll
 F:\CodeChamber\BattleShip_v1.2\Kronos.pdb
+F:\CodeChamber\BattleShip_v1.2\Kronos.dll.CodeAnalysisLog.xml
+F:\CodeChamber\BattleShip_v1.2\Kronos.dll.lastcodeanalysissucceeded

@@ -8,6 +8,9 @@ namespace Kronos
   {
     public static void Shuffle<T>(this IList<T> list)
     {
+      if (list == null)
+        throw new ArgumentNullException("list");
+
       int items = list.Count;
       Random rnd = new Random();
 
@@ -25,6 +28,9 @@ namespace Kronos
 
     public static void Rotate<T>(this IList<T> list)
     {
+      if (list == null)
+        throw new ArgumentNullException("list");
+
       T first = list[0];
 
       list.RemoveAt(0);

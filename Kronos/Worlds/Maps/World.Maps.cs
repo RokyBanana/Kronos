@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using BattleShip.Interface;
@@ -9,7 +10,7 @@ namespace Kronos.Worlds.Maps
 {
   public class Map
   {
-    public Boundaries Boundaries;
+    public Boundaries Boundaries { get; set; }
     public int Impacts { get { return _positions.Sum(p => p.Hits); } }
     public Coordinate Impact { get { return _positions[_positions.Count - 1].Coordinate; } }
     private List<Position> _positions;
@@ -24,6 +25,9 @@ namespace Kronos.Worlds.Maps
 
     public bool IsOutside(Coordinate coordinate)
     {
+      if (coordinate==null)
+        throw new ArgumentNullException("coordinate");
+
       return IsOutside(coordinate.X, coordinate.Y);
     }
 
@@ -46,6 +50,9 @@ namespace Kronos.Worlds.Maps
 
     public Status StatusAt(Coordinate coordinate)
     {
+      if (coordinate == null)
+        throw new ArgumentNullException("coordinate");
+
       return StatusAt(coordinate.X, coordinate.Y);
     }
 
@@ -56,6 +63,9 @@ namespace Kronos.Worlds.Maps
 
     public void Update(Position position)
     {
+      if (position==null)
+        throw new ArgumentNullException("position");
+
       Update(position.Coordinate, position.Status);
     }
 

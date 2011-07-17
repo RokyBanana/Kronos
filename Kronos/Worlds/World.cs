@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using BattleShip.Interface;
 
@@ -9,15 +10,15 @@ namespace Kronos.Worlds
   public class World
   {
     public Boundaries Boundaries { get; set; }
-    public Coordinate RandomCoordinate { get { return new Coordinate(GodFather.Dice.Next(Boundaries.East) + Boundaries.West, GodFather.Dice.Next(Boundaries.North) + Boundaries.South); } }
-    public List<Coordinate> Impacts { get; set; }
+    public Coordinate RandomCoordinate { get { return new Coordinate(Dice.Next(Boundaries.East) + Boundaries.West, Dice.Next(Boundaries.North) + Boundaries.South); } }
     public Map Map { get; set; }
+
+    private static Random Dice = new Random(Environment.TickCount);
 
     public World() { }
 
     public void Create(IPlayerView world, ICollection<IVessel> countries)
     {
-      Impacts = new List<Coordinate>();
       Map = new Map(Boundaries);
 
       CreateInternal(world, countries);
@@ -32,7 +33,7 @@ namespace Kronos.Worlds
 
       foreach (IVessel country in countries)
       {
-        orientation = GodFather.Dice.Next(2) == 1 ? Orientation.Horizontal : Orientation.Vertical;
+        orientation = Dice.Next(2) == 1 ? Orientation.Horizontal : Orientation.Vertical;
 
         if (orientation == Orientation.Horizontal && coordinate.X + country.Length > Boundaries.East)
           coordinate.X -= coordinate.X + country.Length - Boundaries.East;

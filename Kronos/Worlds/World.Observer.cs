@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -10,6 +11,9 @@ namespace Kronos.Worlds
   {
     public static void Show(Map map)
     {
+      if (map == null)
+        throw new ArgumentNullException("map");
+
       Console.Clear();
 
       string mark = "";
@@ -17,7 +21,7 @@ namespace Kronos.Worlds
 
       for (int _y = map.Boundaries.North; _y >= map.Boundaries.South; _y--)
       {
-        viewArea.Append(_y.ToString().PadLeft(2)).Append(": ");
+        viewArea.Append(_y.ToString(CultureInfo.InvariantCulture).PadLeft(2)).Append(": ");
 
         for (int _x = map.Boundaries.West; _x <= map.Boundaries.East; _x++)
         {
