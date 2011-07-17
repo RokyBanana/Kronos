@@ -3,7 +3,7 @@
   public enum States
   {
     Attacking,
-    Idle,
+    Acquiring,
     TargetAcquired,
     TargetDestroyed,
     TargetLost

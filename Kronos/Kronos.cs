@@ -14,14 +14,12 @@ namespace Kronos
     public static Random Dice = new Random(Environment.TickCount);
 
     public God God { get; private set; }
-    public Observer Observer { get; private set; }
     public World World { get; private set; }
 
     public GodFather()
     {
       God = Olympus.SendGod();
       World = new World();
-      Observer = new Observer(World);
     }
 
     #region IPlayer Members
@@ -41,8 +39,6 @@ namespace Kronos
     public void ShotFeedback(int hits, int sunkShips)
     {
       God.EvaluateBattleField(hits, sunkShips);
-
-      Observer.Show();
     }
 
     public Shot YourTurn(IPlayerView playerView)

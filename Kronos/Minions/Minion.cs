@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using BattleShip.Interface;
 
@@ -18,7 +19,6 @@ namespace Kronos.Minions
     public string Name { get; set; }
 
     private List<Coordinate> _footPrints;
-    private List<Position> _mayhem;
     private Movement _trackingVector;
     private States _state;
 
@@ -27,7 +27,7 @@ namespace Kronos.Minions
       Name = "Triton";
 
       _footPrints = new List<Coordinate>();
-      _state = States.Idle;
+      _state = States.Acquiring;
     }
 
     #region Methods
@@ -43,6 +43,9 @@ namespace Kronos.Minions
 
     public void RecieveOrders(Orders order)
     {
+      if (order == Order)
+        return;
+
       Order = order;
 
       switch (order)
@@ -51,9 +54,6 @@ namespace Kronos.Minions
           break;
         case Orders.Kill:
           Position position = new Position(Target, Status.Damaged);
-
-          _mayhem = new List<Position>();
-          _mayhem.Add(position);
 
           _trackingVector = new Movement(position.Coordinate, Direction.East, 1);
           _trackingVector.StartPosition = position.Coordinate;
@@ -65,13 +65,8 @@ namespace Kronos.Minions
 
     public void CoverTracks(Position position)
     {
-      if (Order == Orders.Kill)
-      {
-        _mayhem.Add(position);
-
-        if (position.Status == Status.Explored)
-          _state = States.TargetLost;
-      }
+      if (Order == Orders.Kill && position.Status == Status.Explored)
+        _state = States.TargetLost;
 
       _footPrints.Add(position.Coordinate);
 
@@ -107,7 +102,7 @@ namespace Kronos.Minions
     {
       HuntingVector.Coordinate = BattlePlan[0];
 
-      while (_state == States.Idle)
+      while (_state == States.Acquiring)
         TrackEnemy();
 
       Target = HuntingVector.Coordinate;

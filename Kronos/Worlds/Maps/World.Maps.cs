@@ -10,7 +10,8 @@ namespace Kronos.Worlds.Maps
   public class Map
   {
     public Boundaries Boundaries;
-
+    public int Impacts { get { return _positions.Sum(p => p.Hits); } }
+    public Coordinate Impact { get { return _positions[_positions.Count - 1].Coordinate; } }
     private List<Position> _positions;
 
     public Map(Boundaries boundaries)
@@ -23,16 +24,21 @@ namespace Kronos.Worlds.Maps
 
     public bool IsOutside(Coordinate coordinate)
     {
-      if (coordinate.X > Boundaries.East)
+      return IsOutside(coordinate.X, coordinate.Y);
+    }
+
+    public bool IsOutside(int latitude, int longitude)
+    {
+      if (latitude > Boundaries.East)
         return true;
 
-      if (coordinate.X < Boundaries.West)
+      if (latitude < Boundaries.West)
         return true;
 
-      if (coordinate.Y > Boundaries.North)
+      if (longitude > Boundaries.North)
         return true;
 
-      if (coordinate.Y < Boundaries.South)
+      if (longitude < Boundaries.South)
         return true;
 
       return false;

@@ -15,6 +15,7 @@ namespace Kronos.Gods
     public override World World { get; set; }
     public override Coordinate Target { get; set; }
 
+    private List<Coordinate> _killHistory = new List<Coordinate>();
     private List<Minion> _minions = new List<Minion>();
     private Minion _minion;
 
@@ -29,13 +30,21 @@ namespace Kronos.Gods
       {
         _minion.CoverTracks(new Position(Target, Status.Damaged));
         _minion.RecieveOrders(Orders.Kill);
+
+        _killHistory.Add(Target);
       }
 
       if (defiles == 1)
       {
-        _minion.CoverTracks(new Position(Target, Status.Defiled));
+        _minion.CoverTracks(new Position(Target, Status.Damaged));
         _minion.RecieveOrders(Orders.Hunt);
+
+        _killHistory.Add(Target);
+
+        RevealEnemy();
       }
+
+      Observer.Show(World.Map);
     }
 
     public override void Play()
@@ -61,5 +70,33 @@ namespace Kronos.Gods
 
       return shot;
     }
+
+    private void RevealEnemy()
+    {
+      Coordinate enemyBox;
+
+      foreach (Coordinate coordinate in _killHistory)
+      {
+        for (int latitude=-1; latitude <= 1; latitude++)
+          for (int longitude=-1; longitude <= 1; longitude++)
+          {
+            enemyBox = new Coordinate(coordinate.X + latitude, coordinate.Y + longitude);
+
+            if (World.Map.IsOutside(enemyBox))
+              continue;
+
+            _minion.BattlePlan.RemoveAll(c => c.X == enemyBox.X && c.Y == enemyBox.Y);
+
+            if (World.Map.StatusAt(enemyBox) == Status.Hidden)
+              _minion.BattleField.Update(enemyBox, Status.Explored);
+          }
+      }
+
+      foreach (Coordinate coordinate in _killHistory)
+        _minion.BattleField.Update(coordinate, Status.Defiled);
+
+      _killHistory.Clear();
+    }
+
   }
 }

@@ -1,31 +1,27 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
+
+using Kronos.Worlds.Maps;
 
 namespace Kronos.Worlds
 {
-  public class Observer
+  public static class Observer
   {
-    private World _world;
-
-    public Observer(World world)
-    {
-      _world = world;
-    }
-
-    public void Show()
+    public static void Show(Map map)
     {
       Console.Clear();
 
       string mark = "";
       StringBuilder viewArea = new StringBuilder();
 
-      for (int _y = _world.Boundaries.North; _y >= _world.Boundaries.South; _y--)
+      for (int _y = map.Boundaries.North; _y >= map.Boundaries.South; _y--)
       {
         viewArea.Append(_y.ToString().PadLeft(2)).Append(": ");
 
-        for (int _x = _world.Boundaries.West; _x <= _world.Boundaries.East; _x++)
+        for (int _x = map.Boundaries.West; _x <= map.Boundaries.East; _x++)
         {
-          switch (_world.Map.StatusAt(_x, _y))
+          switch (map.StatusAt(_x, _y))
           {
             case Status.Hidden:
               mark = ". ";
@@ -34,21 +30,24 @@ namespace Kronos.Worlds
               mark = "o ";
               break;
             case Status.Damaged:
-              mark = "! ";
+              mark = "D ";
               break;
             case Status.Defiled:
               mark = "X ";
+              break;
+            case Status.Ignored:
+              mark = "  ";
               break;
           }
 
           viewArea.Append(mark);
         }
 
-        if (_y == _world.Boundaries.South)
+        if (_y == map.Boundaries.South)
         {
           viewArea.AppendLine().Append("    ");
 
-          for (int _x = _world.Boundaries.West; _x <= _world.Boundaries.East; _x++)
+          for (int _x = map.Boundaries.West; _x <= map.Boundaries.East; _x++)
             viewArea.Append(_x).Append(" ");
         }
 
@@ -56,10 +55,10 @@ namespace Kronos.Worlds
         viewArea.AppendLine();
       }
 
-      viewArea.AppendLine(string.Concat("Shots fired: ", _world.Impacts.Count));
+      viewArea.AppendLine(string.Concat("Shots fired: ", map.Impacts));
 
-      if (_world.Impacts.Count > 0)
-        viewArea.AppendLine(string.Concat("Impact coordinate: ", _world.Impacts[_world.Impacts.Count - 1].X, ",", _world.Impacts[_world.Impacts.Count - 1].Y));
+      if (map.Impacts > 0)
+        viewArea.AppendLine(string.Concat("Target coordinate: ", map.Impact.X, ",", map.Impact.Y));
 
       Console.Write(viewArea.ToString());
       Console.ReadKey();

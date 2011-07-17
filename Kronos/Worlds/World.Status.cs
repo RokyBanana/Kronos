@@ -5,6 +5,7 @@
     Damaged,
     Defiled,
     Explored,
-    Hidden
+    Hidden,
+    Ignored
   }
 }
