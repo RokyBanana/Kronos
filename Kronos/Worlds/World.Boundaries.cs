@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Kronos.Worlds
+﻿namespace Kronos.Worlds
 {
   public class Boundaries
   {
@@ -12,6 +7,7 @@ namespace Kronos.Worlds
     public int East { get; set; }
     public int West { get; set; }
 
-    public Boundaries() { North = 10; South = 1; East = 10; West = 1; }
+    public Boundaries() : this(10, 1, 10, 1) { }
+    public Boundaries(int north, int south, int east, int west) { North = north; South = south; East = east; West = west; }
   }
 }

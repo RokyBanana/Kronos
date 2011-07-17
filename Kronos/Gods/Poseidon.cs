@@ -1,70 +1,65 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 using BattleShip.Interface;
 
 using Kronos.Minions;
 using Kronos.Worlds;
+using Kronos.Worlds.Directions;
 using Kronos.Worlds.Maps;
 
 namespace Kronos.Gods
 {
   public class Poseidon : God
   {
-    #region Properties
-
     public override string Name { get { return "Poseidon"; } }
     public override World World { get; set; }
-    public override Coordinate LastSmite { get; set; }
+    public override Coordinate Target { get; set; }
 
-    #endregion
-
-    private List<Coordinate> _battlePlan;
+    private List<Minion> _minions = new List<Minion>();
+    private Minion _minion;
 
     public Poseidon() { }
-
-    #region Methods
 
     public override void EvaluateBattleField(int casualties, int defiles)
     {
       if (casualties == 0)
+        _minion.CoverTracks(new Position(Target, Status.Explored));
+
+      if (casualties > 0)
       {
-        World.Map.Update(LastSmite, Status.Explored);
-        _battlePlan.Reverse(0, _battlePlan.Count / 2);
+        _minion.CoverTracks(new Position(Target, Status.Damaged));
+        _minion.RecieveOrders(Orders.Kill);
       }
-      else
-        World.Map.Update(LastSmite, Status.Defiled);
+
+      if (defiles == 1)
+      {
+        _minion.CoverTracks(new Position(Target, Status.Defiled));
+        _minion.RecieveOrders(Orders.Hunt);
+      }
     }
 
-    public override void Dominate()
+    public override void Play()
     {
-      _battlePlan = CreateBattlePlan();
+      Minion minion = new Minion();
+
+      minion.BattleField = World.Map;
+      minion.ReadyForBattle();
+
+      _minions.Add(minion);
+      _minion = minion;
     }
 
-    public override Shot Smites(IPlayerView world)
+    public override Shot Smites()
     {
-      LastSmite = _battlePlan[0];
+      if (_minion.Order == Orders.Retire)
+        _minions.Remove(_minion);
 
-      Shot shot = new Shot(LastSmite.X, LastSmite.Y);
-      
-      _battlePlan.Remove(LastSmite);
+      _minion.CarryOutHisWill();
+      Target = _minion.Target;
+
+      Shot shot = new Shot(Target.X, Target.Y);
 
       return shot;
-    }
-
-    #endregion
-
-    private List<Coordinate> CreateBattlePlan()
-    {
-      List<Coordinate> battlePlan = new List<Coordinate>();
-      
-      for (int latitude=World.Boundaries.West; latitude <= World.Boundaries.East; latitude++)
-        for (int longitude=World.Boundaries.South; longitude <= World.Boundaries.North; longitude++)
-          battlePlan.Add(new Coordinate(latitude, longitude));
-
-      return battlePlan;
     }
   }
 }

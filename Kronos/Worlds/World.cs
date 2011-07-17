@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 using BattleShip.Interface;
 
-using Kronos;
+using Kronos.Worlds.Maps;
 
 namespace Kronos.Worlds
 {
   public class World
   {
     public Boundaries Boundaries { get; set; }
-    public Coordinate RandomCoordinate { get { return new Coordinate(Core.Dice.Next(Boundaries.East) + Boundaries.West, Core.Dice.Next(Boundaries.North) + Boundaries.South); } }
+    public Coordinate RandomCoordinate { get { return new Coordinate(GodFather.Dice.Next(Boundaries.East) + Boundaries.West, GodFather.Dice.Next(Boundaries.North) + Boundaries.South); } }
     public List<Coordinate> Impacts { get; set; }
     public Map Map { get; set; }
 
@@ -35,7 +32,7 @@ namespace Kronos.Worlds
 
       foreach (IVessel country in countries)
       {
-        orientation = Core.Dice.Next(2) == 1 ? Orientation.Horizontal : Orientation.Vertical;
+        orientation = GodFather.Dice.Next(2) == 1 ? Orientation.Horizontal : Orientation.Vertical;
 
         if (orientation == Orientation.Horizontal && coordinate.X + country.Length > Boundaries.East)
           coordinate.X -= coordinate.X + country.Length - Boundaries.East;

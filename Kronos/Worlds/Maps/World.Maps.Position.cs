@@ -1,28 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using BattleShip.Interface;
+﻿using BattleShip.Interface;
 
 namespace Kronos.Worlds.Maps
 {
   public class Position
   {
     public Coordinate Coordinate { get; set; }
+    public int Hits { get; set; }
     public Status Status { get; set; }
 
+    public Position()
+    {
+      Coordinate = new Coordinate(0, 0);
+    }
+    
     public Position(Coordinate coordinate, Status status)
     {
-      Coordinate = coordinate;
+      Coordinate = new Coordinate(coordinate);
       Status = status;
     }
-  }
-
-  public enum Status
-  {
-    Defiled,
-    Explored,
-    Hidden
   }
 }

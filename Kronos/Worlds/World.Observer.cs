@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-
-using BattleShip.Interface;
-
-using Kronos.Worlds.Maps;
 
 namespace Kronos.Worlds
 {
@@ -46,6 +40,9 @@ namespace Kronos.Worlds
             case Status.Explored:
               mark = "o ";
               break;
+            case Status.Damaged:
+              mark = "! ";
+              break;
             case Status.Defiled:
               mark = "X ";
               break;
@@ -59,6 +56,9 @@ namespace Kronos.Worlds
       }
 
       viewArea.AppendLine(string.Concat("Shots fired: ", _world.Impacts.Count));
+
+      if (_world.Impacts.Count > 0)
+        viewArea.AppendLine(string.Concat("Impact coordinate: ", _world.Impacts[_world.Impacts.Count - 1].X, ",", _world.Impacts[_world.Impacts.Count - 1].Y));
 
       Console.Write(viewArea.ToString());
       Console.ReadKey();

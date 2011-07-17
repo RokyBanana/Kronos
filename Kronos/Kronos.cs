@@ -3,21 +3,23 @@ using System.Collections.Generic;
 
 using BattleShip.Interface;
 
+using Kronos.Gods;
 using Kronos.Worlds;
 using Kronos.Worlds.Maps;
 
 namespace Kronos
 {
-  public class Core : IPlayer
+  public class GodFather : IPlayer
   {
     public static Random Dice = new Random(Environment.TickCount);
+
     public God God { get; private set; }
     public Observer Observer { get; private set; }
     public World World { get; private set; }
 
-    public Core()
+    public GodFather()
     {
-      God = new Gods.Poseidon();
+      God = Olympus.SendGod();
       World = new World();
       Observer = new Observer(World);
     }
@@ -33,19 +35,19 @@ namespace Kronos
       World.Create(playerView, ships);
 
       God.World = World;
-      God.Dominate();
+      God.Play();
     }
 
     public void ShotFeedback(int hits, int sunkShips)
     {
-      God.EvaluateBattleField(hits,sunkShips);
+      God.EvaluateBattleField(hits, sunkShips);
 
       Observer.Show();
     }
 
     public Shot YourTurn(IPlayerView playerView)
     {
-      Shot shot = God.Smites(playerView);
+      Shot shot = God.Smites();
 
       return shot;
     }
