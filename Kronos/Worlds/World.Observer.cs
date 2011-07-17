@@ -21,13 +21,6 @@ namespace Kronos.Worlds
 
       for (int _y = _world.Boundaries.North; _y >= _world.Boundaries.South; _y--)
       {
-        viewArea.Append("    ");
-
-        if (_y == _world.Boundaries.North)
-          for (int _x = _world.Boundaries.West; _x <= _world.Boundaries.East; _x++)
-            viewArea.Append(_x).Append(" ");
-
-        viewArea.AppendLine();
         viewArea.Append(_y.ToString().PadLeft(2)).Append(": ");
 
         for (int _x = _world.Boundaries.West; _x <= _world.Boundaries.East; _x++)
@@ -49,6 +42,14 @@ namespace Kronos.Worlds
           }
 
           viewArea.Append(mark);
+        }
+
+        if (_y == _world.Boundaries.South)
+        {
+          viewArea.AppendLine().Append("    ");
+
+          for (int _x = _world.Boundaries.West; _x <= _world.Boundaries.East; _x++)
+            viewArea.Append(_x).Append(" ");
         }
 
         viewArea.AppendLine();
