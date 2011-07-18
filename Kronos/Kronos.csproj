@@ -47,7 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions.cs" />
+    <Compile Include="Helpers\CustomComparer.cs" />
+    <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Gods\God.cs" />
     <Compile Include="Gods\Gods.Olympus.cs" />
     <Compile Include="Kronos.cs" />
@@ -62,7 +63,7 @@
     <Compile Include="Worlds\World.Directions.cs" />
     <Compile Include="Worlds\World.Observer.cs" />
     <Compile Include="Worlds\World.cs" />
-    <Compile Include="Worlds\World.Status.cs" />
+    <Compile Include="Worlds\Maps\World.Maps.Status.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Worlds\World.Boundaries.cs" />

@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using BattleShip.Interface;
 
+using Kronos.Helpers;
 using Kronos.Minions;
 using Kronos.Worlds;
-using Kronos.Worlds.Directions;
 using Kronos.Worlds.Maps;
 
 namespace Kronos.Gods
@@ -13,7 +14,6 @@ namespace Kronos.Gods
   {
     public override string Name { get { return "Poseidon"; } }
     public override World World { get; set; }
-    public override Coordinate Target { get; set; }
 
     private List<Coordinate> _killHistory = new List<Coordinate>();
     private List<Minion> _minions = new List<Minion>();
@@ -23,21 +23,23 @@ namespace Kronos.Gods
 
     public override void EvaluateBattlefield(int casualties, int defiles)
     {
+      Coordinate target = new Coordinate(_minion.Target);
+
       if (casualties == 0)
-        _minion.CoverTracks(new Position(Target, Status.Explored));
+        _minion.CoverTracks(new Position(target, Status.Explored));
 
       if (casualties > 0)
       {
-        _killHistory.Add(Target);
-        _minion.CoverTracks(new Position(Target, Status.Damaged));
+        _minion.CoverTracks(new Position(target, Status.Damaged));
         _minion.ReceiveOrders(OrderType.Kill);
+        _killHistory.Add(target);
       }
 
       if (defiles == 1)
       {
-        _killHistory.Add(Target);
-        _minion.CoverTracks(new Position(Target, Status.Damaged));
+        _minion.CoverTracks(new Position(target, Status.Damaged));
         _minion.ReceiveOrders(OrderType.Hunt);
+        _killHistory.Add(target);
 
         UseDivinePower();
       }
@@ -62,9 +64,8 @@ namespace Kronos.Gods
         _minions.Remove(_minion);
 
       _minion.ObeyOrder();
-      Target = _minion.Target;
 
-      Shot shot = new Shot(Target.X, Target.Y);
+      Shot shot = new Shot(_minion.Target.X, _minion.Target.Y);
 
       return shot;
     }
@@ -72,6 +73,9 @@ namespace Kronos.Gods
     private void UseDivinePower()
     {
       Coordinate enemyBox;
+
+      _killHistory.OrderBy(cX => cX.X).ThenBy(cY => cY.Y);
+      _killHistory = _killHistory.Distinct(new CoordinateComparer()).ToList();
 
       foreach (Coordinate coordinate in _killHistory)
       {
@@ -83,18 +87,17 @@ namespace Kronos.Gods
             if (World.Map.IsOutside(enemyBox))
               continue;
 
-            _minion.RemovePath(c => c.X == enemyBox.X && c.Y == enemyBox.Y);
+            _minion.RemoveBattleZoneCoordinate(enemyBox);
 
-            if (World.Map.StatusAt(enemyBox) == Status.Hidden)
+            if (_minion.Battlefield.StatusAt(enemyBox) == Status.Hidden)
               _minion.Battlefield.Update(enemyBox, Status.Explored);
           }
       }
 
       foreach (Coordinate coordinate in _killHistory)
-        _minion.Battlefield.Update(coordinate, Status.Defiled);
+        _minion.Battlefield.Update(coordinate, Status.Destroyed);
 
       _killHistory.Clear();
     }
-
   }
 }

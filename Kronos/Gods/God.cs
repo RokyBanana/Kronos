@@ -8,7 +8,6 @@ namespace Kronos.Gods
   {
     public abstract string Name { get; }
     public abstract World World { get; set; }
-    public abstract Coordinate Target { get; set; }
 
     public abstract void Play();
     public abstract void EvaluateBattlefield(int casualties, int defiles);

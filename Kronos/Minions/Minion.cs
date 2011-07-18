@@ -1,38 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
 using BattleShip.Interface;
 
 using Kronos.Worlds;
-using Kronos.Worlds.Maps;
 using Kronos.Worlds.Directions;
+using Kronos.Worlds.Maps;
 
 namespace Kronos.Minions
 {
   public class Minion
   {
     public Coordinate Target { get; set; }
-    public ReadOnlyCollection<Coordinate> BattlePlan { get { return _battlePlan.AsReadOnly(); } }
     public Map Battlefield { get; set; }
     public Movement HuntingVector { get; set; }
     public OrderType Order { get; set; }
+    public ReadOnlyCollection<Coordinate> BattlePlan { get { return _battlePlan.AsReadOnly(); } }
     public string Name { get; set; }
 
-    private readonly List<Coordinate> _battlePlan;
-    private List<Coordinate> _footPrints;
+    private List<Coordinate> _battlePlan;
     private Movement _trackingVector;
     private MinionState _state;
-
-    public int RemovePath(Predicate<Coordinate> match) { return _battlePlan.RemoveAll(match); }
 
     public Minion()
     {
       Name = "Triton";
 
       _battlePlan = new List<Coordinate>();
-      _footPrints = new List<Coordinate>();
       _state = MinionState.Acquiring;
     }
 
@@ -44,7 +39,7 @@ namespace Kronos.Minions
         AcquireTarget();
 
       if (Order == OrderType.Kill)
-        SmiteEnemy();
+        EngageTarget();
     }
 
     public void ReceiveOrders(OrderType order)
@@ -74,21 +69,27 @@ namespace Kronos.Minions
       if (Order == OrderType.Kill && position.Status == Status.Explored)
         _state = MinionState.TargetLost;
 
-      _footPrints.Add(position.Coordinate);
-
       Battlefield.Update(position);
+
       _battlePlan.Remove(_battlePlan.Find(c => c.X == position.Coordinate.X && c.Y == position.Coordinate.Y));
 
       if (_battlePlan.Count == 0)
         ReceiveOrders(OrderType.Retire);
     }
 
+    public void RemoveBattleZoneCoordinate(Coordinate zone)
+    {
+      _battlePlan.Remove(_battlePlan.Find(c => c.X == zone.X && c.Y == zone.Y));
+    }
+
     public void ReadyForBattle()
     {
-      SurveyBattleField();
+      List<Coordinate> battlefield = SurveyBattlefield();
+
+      _battlePlan = (battlefield.OrderBy(c => (c.X + c.Y) % 3).ToList());
 
       HuntingVector = new Movement();
-      HuntingVector.Direction = Direction.East;
+      HuntingVector.Direction = Direction.North;
       HuntingVector.Speed = 2;
       Order = OrderType.Hunt;
     }
@@ -105,7 +106,7 @@ namespace Kronos.Minions
       Target = HuntingVector.Coordinate;
     }
 
-    private void SmiteEnemy()
+    private void EngageTarget()
     {
       if (_state == MinionState.TargetLost)
       {
@@ -155,7 +156,7 @@ namespace Kronos.Minions
         HuntingVector.Turn();
       }
 
-      if (Battlefield.StatusAt(HuntingVector.Coordinate) == Status.Explored || Battlefield.StatusAt(HuntingVector.Coordinate) == Status.Defiled)
+      if (Battlefield.StatusAt(HuntingVector.Coordinate) == Status.Explored || Battlefield.StatusAt(HuntingVector.Coordinate) == Status.Destroyed)
         HuntingVector.Advance();
       else
         _state = MinionState.TargetAcquired;
@@ -166,17 +167,21 @@ namespace Kronos.Minions
       if (Battlefield.IsOutside(_trackingVector.Coordinate))
         _trackingVector.Regroup();
 
-      if (Battlefield.StatusAt(_trackingVector.Coordinate) == Status.Explored || Battlefield.StatusAt(_trackingVector.Coordinate) == Status.Damaged || Battlefield.StatusAt(_trackingVector.Coordinate) == Status.Defiled)
+      if (Battlefield.StatusAt(_trackingVector.Coordinate) == Status.Explored || Battlefield.StatusAt(_trackingVector.Coordinate) == Status.Damaged || Battlefield.StatusAt(_trackingVector.Coordinate) == Status.Destroyed)
         _trackingVector.Advance();
       else
         _state = MinionState.Attacking;
     }
 
-    private void SurveyBattleField()
+    private List<Coordinate> SurveyBattlefield()
     {
+      List<Coordinate> battlefield = new List<Coordinate>();
+
       for (int latitude = Battlefield.Boundaries.West; latitude <= Battlefield.Boundaries.East; latitude++)
         for (int longitude = Battlefield.Boundaries.South; longitude <= Battlefield.Boundaries.North; longitude++)
-          _battlePlan.Add(new Coordinate(latitude, longitude));
+          battlefield.Add(new Coordinate(latitude, longitude));
+
+      return battlefield;
     }
   }
 }
