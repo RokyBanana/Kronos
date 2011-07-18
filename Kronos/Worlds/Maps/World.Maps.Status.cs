@@ -1,9 +1,9 @@
-﻿namespace Kronos.Worlds
+﻿namespace Kronos.Worlds.Maps
 {
   public enum Status
   {
     Damaged,
-    Defiled,
+    Destroyed,
     Explored,
     Hidden,
     Ignored

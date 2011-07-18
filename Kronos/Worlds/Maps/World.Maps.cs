@@ -4,8 +4,6 @@ using System.Linq;
 
 using BattleShip.Interface;
 
-using Kronos.Worlds.Maps;
-
 namespace Kronos.Worlds.Maps
 {
   public class Map
@@ -25,7 +23,7 @@ namespace Kronos.Worlds.Maps
 
     public bool IsOutside(Coordinate coordinate)
     {
-      if (coordinate==null)
+      if (coordinate == null)
         throw new ArgumentNullException("coordinate");
 
       return IsOutside(coordinate.X, coordinate.Y);
@@ -48,6 +46,32 @@ namespace Kronos.Worlds.Maps
       return false;
     }
 
+    public char GetMarker(int latitude, int longitude)
+    {
+      char marker = ' ';
+
+      switch (StatusAt(latitude, longitude))
+      {
+        case Status.Hidden:
+          marker = ' ';
+          break;
+        case Status.Explored:
+          marker = 'o';
+          break;
+        case Status.Damaged:
+          marker = '!';
+          break;
+        case Status.Destroyed:
+          marker = 'X';
+          break;
+        case Status.Ignored:
+          marker = ' ';
+          break;
+      }
+
+      return marker;
+    }
+
     public Status StatusAt(Coordinate coordinate)
     {
       if (coordinate == null)
@@ -63,7 +87,7 @@ namespace Kronos.Worlds.Maps
 
     public void Update(Position position)
     {
-      if (position==null)
+      if (position == null)
         throw new ArgumentNullException("position");
 
       Update(position.Coordinate, position.Status);

@@ -16,38 +16,16 @@ namespace Kronos.Worlds
 
       Console.Clear();
 
-      string mark = "";
       StringBuilder viewArea = new StringBuilder();
 
-      for (int _y = map.Boundaries.North; _y >= map.Boundaries.South; _y--)
+      for (int longitude = map.Boundaries.North; longitude >= map.Boundaries.South; longitude--)
       {
-        viewArea.Append(_y.ToString(CultureInfo.InvariantCulture).PadLeft(2)).Append(": ");
+        viewArea.Append(longitude.ToString(CultureInfo.InvariantCulture).PadLeft(2)).Append(": ");
 
-        for (int _x = map.Boundaries.West; _x <= map.Boundaries.East; _x++)
-        {
-          switch (map.StatusAt(_x, _y))
-          {
-            case Status.Hidden:
-              mark = ". ";
-              break;
-            case Status.Explored:
-              mark = "o ";
-              break;
-            case Status.Damaged:
-              mark = "D ";
-              break;
-            case Status.Defiled:
-              mark = "X ";
-              break;
-            case Status.Ignored:
-              mark = "  ";
-              break;
-          }
+        for (int latitude = map.Boundaries.West; latitude <= map.Boundaries.East; latitude++)
+          viewArea.AppendFormat("{0} ", map.GetMarker(latitude, longitude));
 
-          viewArea.Append(mark);
-        }
-
-        if (_y == map.Boundaries.South)
+        if (longitude == map.Boundaries.South)
         {
           viewArea.AppendLine().Append("    ");
 
@@ -59,10 +37,10 @@ namespace Kronos.Worlds
         viewArea.AppendLine();
       }
 
-      viewArea.AppendLine(string.Concat("Shots fired: ", map.Impacts));
+      viewArea.Append("Shots fired: ").Append(map.Impacts).AppendLine();
 
       if (map.Impacts > 0)
-        viewArea.AppendLine(string.Concat("Target coordinate: ", map.Impact.X, ",", map.Impact.Y));
+        viewArea.Append("Target coordinates: ").Append(map.Impact.X).Append(",").Append(map.Impact.Y).AppendLine();
 
       Console.Write(viewArea.ToString());
       Console.ReadKey();
