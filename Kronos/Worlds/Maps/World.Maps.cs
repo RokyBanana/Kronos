@@ -9,14 +9,16 @@ namespace Kronos.Worlds.Maps
   public class Map
   {
     public Boundaries Boundaries { get; set; }
-    public int Impacts { get { return _positions.Sum(p => p.Hits); } }
-    public Coordinate Impact { get { return _positions[_positions.Count - 1].Coordinate; } }
-    private List<Position> _positions;
+    public Coordinate Impact { get { return _impacts[_lastImpact].Coordinate; } }
+    public int Impacts { get { return _impacts.Count(p => p.Hits > 0); } }
+
+    private int _lastImpact;
+    private List<Position> _impacts;
 
     public Map(Boundaries boundaries)
     {
       Boundaries = boundaries;
-      _positions = new List<Position>();
+      _impacts = new List<Position>();
 
       CreateMap();
     }
@@ -65,7 +67,13 @@ namespace Kronos.Worlds.Maps
           marker = 'X';
           break;
         case Status.Ignored:
-          marker = ' ';
+          marker = '.';
+          break;
+        case Status.Attacked:
+          marker = '*';
+          break;
+        case Status.Tracked:
+          marker = '?';
           break;
       }
 
@@ -82,7 +90,10 @@ namespace Kronos.Worlds.Maps
 
     public Status StatusAt(int latitude, int longitude)
     {
-      return _positions.Single<Position>(p => p.Coordinate.X == latitude && p.Coordinate.Y == longitude).Status;
+      if (IsOutside(latitude, longitude))
+        return Status.Outside;
+
+      return _impacts.Single<Position>(p => p.Coordinate.X == latitude && p.Coordinate.Y == longitude).Status;
     }
 
     public void Update(Position position)
@@ -95,14 +106,21 @@ namespace Kronos.Worlds.Maps
 
     public void Update(Coordinate coordinate, Status status)
     {
-      _positions.Single<Position>(p => p.Coordinate.X == coordinate.X && p.Coordinate.Y == coordinate.Y).Status = status;
+      Position impact = _impacts.Single<Position>(p => p.Coordinate.X == coordinate.X && p.Coordinate.Y == coordinate.Y);
+
+      if (status == Status.Damaged || status == Status.Destroyed)
+        impact.Hits++;
+
+      impact.Status = status;
+
+      _lastImpact = _impacts.IndexOf(impact);
     }
 
     private void CreateMap()
     {
       for (int latitude = Boundaries.West; latitude <= Boundaries.East; latitude++)
         for (int longitude = Boundaries.South; longitude <= Boundaries.North; longitude++)
-          _positions.Add(new Position(new Coordinate(latitude, longitude), Status.Hidden));
+          _impacts.Add(new Position(new Coordinate(latitude, longitude), Status.Hidden));
     }
   }
 }

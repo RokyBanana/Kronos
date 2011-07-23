@@ -41,7 +41,7 @@ namespace Kronos
 
     public Shot YourTurn(IPlayerView playerView)
     {
-      Shot shot = God.Smites();
+      Shot shot = God.Smite();
 
       return shot;
     }

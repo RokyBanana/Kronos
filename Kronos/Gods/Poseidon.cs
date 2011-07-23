@@ -7,6 +7,7 @@ using Kronos.Helpers;
 using Kronos.Minions;
 using Kronos.Worlds;
 using Kronos.Worlds.Maps;
+using System;
 
 namespace Kronos.Gods
 {
@@ -25,21 +26,26 @@ namespace Kronos.Gods
     {
       Coordinate target = new Coordinate(_minion.Target);
 
+      Smites++;
+
       if (casualties == 0)
         _minion.CoverTracks(new Position(target, Status.Explored));
 
       if (casualties > 0)
       {
         _minion.CoverTracks(new Position(target, Status.Damaged));
-        _minion.ReceiveOrders(OrderType.Kill);
+        _minion.Hits++;
+
+        if (_minion.Order == OrderType.Hunt)
+          _minion.ReceiveOrders(OrderType.Kill);
+
         _killHistory.Add(target);
       }
 
-      if (defiles == 1)
+      if (defiles > 0)
       {
-        _minion.CoverTracks(new Position(target, Status.Damaged));
+        _minion.Kills++;
         _minion.ReceiveOrders(OrderType.Hunt);
-        _killHistory.Add(target);
 
         UseDivinePower();
       }
@@ -53,12 +59,13 @@ namespace Kronos.Gods
 
       minion.Battlefield = World.Map;
       minion.ReadyForBattle();
+      minion.ReceiveOrders(OrderType.Hunt);
 
       _minions.Add(minion);
       _minion = minion;
     }
 
-    public override Shot Smites()
+    public override Shot Smite()
     {
       if (_minion.Order == OrderType.Retire)
         _minions.Remove(_minion);
@@ -72,30 +79,31 @@ namespace Kronos.Gods
 
     private void UseDivinePower()
     {
-      Coordinate enemyBox;
+      Coordinate ignore;
 
       _killHistory.OrderBy(cX => cX.X).ThenBy(cY => cY.Y);
       _killHistory = _killHistory.Distinct(new CoordinateComparer()).ToList();
+
+      foreach (Coordinate coordinate in _killHistory)
+        _minion.Battlefield.Update(coordinate, Status.Destroyed);
 
       foreach (Coordinate coordinate in _killHistory)
       {
         for (int latitude=-1; latitude <= 1; latitude++)
           for (int longitude=-1; longitude <= 1; longitude++)
           {
-            enemyBox = new Coordinate(coordinate.X + latitude, coordinate.Y + longitude);
+            ignore = new Coordinate(coordinate.X + latitude, coordinate.Y + longitude);
 
-            if (World.Map.IsOutside(enemyBox))
+            if (World.Map.IsOutside(ignore))
               continue;
 
-            _minion.RemoveBattleZoneCoordinate(enemyBox);
+            if (_minion.Battlefield.StatusAt(ignore) != Status.Hidden)
+              continue;
 
-            if (_minion.Battlefield.StatusAt(enemyBox) == Status.Hidden)
-              _minion.Battlefield.Update(enemyBox, Status.Explored);
+            _minion.RemoveBattleplanItem(ignore);
+            _minion.Battlefield.Update(ignore, Status.Ignored);
           }
       }
-
-      foreach (Coordinate coordinate in _killHistory)
-        _minion.Battlefield.Update(coordinate, Status.Destroyed);
 
       _killHistory.Clear();
     }

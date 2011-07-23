@@ -6,6 +6,9 @@
     Destroyed,
     Explored,
     Hidden,
-    Ignored
+    Ignored,
+    Tracked,
+    Attacked,
+    Outside
   }
 }
