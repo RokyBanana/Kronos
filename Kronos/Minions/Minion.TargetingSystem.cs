@@ -2,37 +2,35 @@
 
 using Kronos.Worlds;
 using Kronos.Worlds.Directions;
-using Kronos.Worlds.Maps;
 
 namespace Kronos.Minions
 {
-  public class Movement
+  public class TargetingSystem
   {
     public Coordinate CurrentPosition { get; set; }
     public Direction Heading { get; set; }
+    public int Hits { get; set; }
     public int Speed { get; set; }
 
     private Boundaries _boundaries;
     private Coordinate _start;
-    private Direction _heading;
 
-    public Movement(Boundaries boundaries)
+    public TargetingSystem(Boundaries boundaries)
     {
       _boundaries = boundaries;
 
       CurrentPosition = new Coordinate(boundaries.West - 1, boundaries.South - 1);
     }
 
-    public Movement(Boundaries boundaries, Coordinate coordinate, Direction direction, int speed)
+    public TargetingSystem(Boundaries boundaries, Coordinate coordinate, Direction direction, int speed)
     {
-      _boundaries = boundaries;
-
       CurrentPosition = new Coordinate(coordinate);
       Heading = direction;
+      Hits = 0;
       Speed = speed;
 
+      _boundaries = boundaries;
       _start = new Coordinate(coordinate);
-      _heading = direction;
     }
 
     public void Advance()
@@ -54,7 +52,15 @@ namespace Kronos.Minions
       }
     }
 
-    public void Regroup()
+    public void Calibrate()
+    {
+      if (Hits > 1)
+        Turn();
+
+      Turn();
+    }
+
+    public void Reset()
     {
       CurrentPosition = new Coordinate(_start);
     }
@@ -80,35 +86,33 @@ namespace Kronos.Minions
 
     public bool UpdateVector()
     {
+      bool wasOutOfBounds = false;
+
       if (CurrentPosition.X > _boundaries.East)
       {
         CurrentPosition.X = _boundaries.East;
-
-        return true;
+        wasOutOfBounds = true;
       }
 
       if (CurrentPosition.X < _boundaries.West)
       {
         CurrentPosition.X = _boundaries.West;
-
-        return true;
+        wasOutOfBounds = true;
       }
 
       if (CurrentPosition.Y > _boundaries.North)
       {
         CurrentPosition.Y = _boundaries.North;
-
-        return true;
+        wasOutOfBounds = true;
       }
 
       if (CurrentPosition.Y < _boundaries.South)
       {
         CurrentPosition.Y = _boundaries.South;
-
-        return true;
+        wasOutOfBounds = true;
       }
 
-      return false;
+      return wasOutOfBounds;
     }
 
     private void MoveNorth()

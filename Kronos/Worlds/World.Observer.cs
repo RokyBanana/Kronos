@@ -26,9 +26,7 @@ namespace Kronos
 
       Console.Clear();
       Console.Write(buffer);
-
-      //System.Threading.Thread.Sleep(10);
-      //Console.ReadKey();
+      Console.ReadKey();
     }
 
     private static void RenderMap()

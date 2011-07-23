@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using BattleShip.Interface;
 
@@ -36,7 +35,7 @@ namespace Kronos
 
     public void ShotFeedback(int hits, int sunkShips)
     {
-      God.EvaluateBattlefield(hits, sunkShips);
+      God.Contemplate(hits, sunkShips);
     }
 
     public Shot YourTurn(IPlayerView playerView)

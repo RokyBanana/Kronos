@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
 using BattleShip.Interface;
 
-using Kronos.Worlds;
 using Kronos.Worlds.Directions;
 using Kronos.Worlds.Maps;
 
@@ -14,23 +12,18 @@ namespace Kronos.Minions
   public class Minion
   {
     public Coordinate Target { get; set; }
-    public int Hits { get; set; }
-    public int Kills { get; set; }
     public Map Battlefield { get; set; }
     public MinionState State { get { return _state; } }
     public OrderType Order { get; set; }
     public ReadOnlyCollection<Coordinate> BattlePlan { get { return _battlePlan.AsReadOnly(); } }
-    public string Name { get; set; }
 
     private List<Coordinate> _battlePlan;
-    private Movement _huntingVector;
-    private Movement _trackingVector;
+    private TargetingSystem _huntingVector;
+    private TargetingSystem _trackingVector;
     private MinionState _state;
 
     public Minion()
     {
-      Name = "Triton";
-
       _battlePlan = new List<Coordinate>();
       _state = MinionState.Acquiring;
     }
@@ -39,9 +32,6 @@ namespace Kronos.Minions
 
     public void ObeyOrder()
     {
-      if (Hits > 5)
-        throw new System.InvalidOperationException("Not effin possible...");
-
       if (Order == OrderType.Hunt)
         AcquireTarget();
       else
@@ -69,6 +59,10 @@ namespace Kronos.Minions
     {
       if (Order == OrderType.Kill && position.Status != Status.Damaged)
         _state = MinionState.TargetLost;
+
+      if (Order == OrderType.Kill && position.Status == Status.Damaged)
+        _trackingVector.Hits++;
+      
       if (Order == OrderType.Hunt && (position.Status == Status.Explored || position.Status == Status.Ignored))
         _state = MinionState.Acquiring;
 
@@ -92,15 +86,14 @@ namespace Kronos.Minions
 
     private void Hunt()
     {
-      _huntingVector = new Movement(Battlefield.Boundaries, _battlePlan[0], Direction.North, 2);
+      _huntingVector = new TargetingSystem(Battlefield.Boundaries, _battlePlan[0], Direction.North, 1);
       _state = MinionState.Acquiring;
     }
 
     private void Kill()
     {
-      _trackingVector = new Movement(Battlefield.Boundaries, new Coordinate(Target), _huntingVector.Heading, 1);
+      _trackingVector = new TargetingSystem(Battlefield.Boundaries, new Coordinate(Target), _huntingVector.Heading, 1);
       _state = MinionState.TargetAcquired;
-      Hits = 0;
     }
 
     private void AcquireTarget()
@@ -138,8 +131,8 @@ namespace Kronos.Minions
     {
       if (_state == MinionState.TargetLost)
       {
-        _trackingVector.Regroup();
-        SmartMove();
+        _trackingVector.Reset();
+        _trackingVector.Calibrate();
         _state = MinionState.TargetAcquired;
       }
 
@@ -160,31 +153,25 @@ namespace Kronos.Minions
         _trackingVector.Advance();
       else
       {
-        _trackingVector.Regroup();
-        SmartMove();
+        _trackingVector.Reset();
+        _trackingVector.Calibrate();
         _trackingVector.Advance();
       }
 
+#if DEBUG
       if (!Battlefield.IsOutside(_trackingVector.CurrentPosition))
-        ShowMinion(_trackingVector.CurrentPosition, Status.Attacked);
+        ViewTrackingSystem(_trackingVector.CurrentPosition, Status.Attacked);
+#endif
 
       if (_trackingVector.UpdateVector())
       {
-        _trackingVector.Regroup();
-        SmartMove();
+        _trackingVector.Reset();
+        _trackingVector.Calibrate();
         _trackingVector.Advance();
       }
     }
 
-    private void SmartMove()
-    {
-      if (Hits > 1)
-        _trackingVector.Turn();
-
-      _trackingVector.Turn();
-    }
-
-    private void ShowMinion(Coordinate coordinate, Status status)
+    private void ViewTrackingSystem(Coordinate coordinate, Status status)
     {
       Status savedStatus = Battlefield.StatusAt(coordinate);
 

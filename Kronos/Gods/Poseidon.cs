@@ -3,11 +3,9 @@ using System.Linq;
 
 using BattleShip.Interface;
 
-using Kronos.Helpers;
 using Kronos.Minions;
 using Kronos.Worlds;
 using Kronos.Worlds.Maps;
-using System;
 
 namespace Kronos.Gods
 {
@@ -22,7 +20,7 @@ namespace Kronos.Gods
 
     public Poseidon() { }
 
-    public override void EvaluateBattlefield(int casualties, int defiles)
+    public override void Contemplate(int casualties, int defiles)
     {
       Coordinate target = new Coordinate(_minion.Target);
 
@@ -34,7 +32,6 @@ namespace Kronos.Gods
       if (casualties > 0)
       {
         _minion.CoverTracks(new Position(target, Status.Damaged));
-        _minion.Hits++;
 
         if (_minion.Order == OrderType.Hunt)
           _minion.ReceiveOrders(OrderType.Kill);
@@ -44,13 +41,14 @@ namespace Kronos.Gods
 
       if (defiles > 0)
       {
-        _minion.Kills++;
         _minion.ReceiveOrders(OrderType.Hunt);
 
         UseDivinePower();
       }
 
+#if DEBUG
       Observer.Show(World.Map);
+#endif
     }
 
     public override void Play()
@@ -81,8 +79,7 @@ namespace Kronos.Gods
     {
       Coordinate ignore;
 
-      _killHistory.OrderBy(cX => cX.X).ThenBy(cY => cY.Y);
-      _killHistory = _killHistory.Distinct(new CoordinateComparer()).ToList();
+      _killHistory = _killHistory.OrderBy(cX => cX.X).ThenBy(cY => cY.Y).ToList();
 
       foreach (Coordinate coordinate in _killHistory)
         _minion.Battlefield.Update(coordinate, Status.Destroyed);

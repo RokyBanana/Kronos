@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Kronos
 {
-  public static class Extensions
+  public static class ListExtensions
   {
     public static void Shuffle<T>(this IList<T> list)
     {
