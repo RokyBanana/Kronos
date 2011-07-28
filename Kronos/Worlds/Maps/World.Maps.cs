@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 using BattleShip.Interface;
@@ -11,6 +12,7 @@ namespace Kronos.Worlds.Maps
     public Boundaries Boundaries { get; set; }
     public Coordinate Impact { get { return _impacts[_lastImpact].Coordinate; } }
     public int Impacts { get { return _impacts.Count(p => p.Hits > 0); } }
+    public ReadOnlyCollection<Position> Layout { get { return _impacts.AsReadOnly(); } }
 
     private int _lastImpact;
     private List<Position> _impacts;
@@ -28,7 +30,7 @@ namespace Kronos.Worlds.Maps
       if (coordinate == null)
         throw new ArgumentNullException("coordinate");
 
-      return IsOutside(coordinate.X, coordinate.Y);
+      return IsOutside(coordinate.Latitude, coordinate.Longitude);
     }
 
     public bool IsOutside(int latitude, int longitude)
@@ -46,6 +48,11 @@ namespace Kronos.Worlds.Maps
         return true;
 
       return false;
+    }
+
+    public IEnumerable<Coordinate> GetAll(Status status)
+    {
+      return _impacts.Where(p => p.Status == status).Select(p => p.Coordinate);
     }
 
     public char GetMarker(int latitude, int longitude)
@@ -85,7 +92,7 @@ namespace Kronos.Worlds.Maps
       if (coordinate == null)
         throw new ArgumentNullException("coordinate");
 
-      return StatusAt(coordinate.X, coordinate.Y);
+      return StatusAt(coordinate.Latitude, coordinate.Longitude);
     }
 
     public Status StatusAt(int latitude, int longitude)
@@ -93,7 +100,7 @@ namespace Kronos.Worlds.Maps
       if (IsOutside(latitude, longitude))
         return Status.Outside;
 
-      return _impacts.Single<Position>(p => p.Coordinate.X == latitude && p.Coordinate.Y == longitude).Status;
+      return _impacts.Single<Position>(p => p.Coordinate.Latitude == latitude && p.Coordinate.Longitude == longitude).Status;
     }
 
     public void Update(Position position)
@@ -106,7 +113,7 @@ namespace Kronos.Worlds.Maps
 
     public void Update(Coordinate coordinate, Status status)
     {
-      Position impact = _impacts.Single<Position>(p => p.Coordinate.X == coordinate.X && p.Coordinate.Y == coordinate.Y);
+      Position impact = _impacts.Single<Position>(p => p.Coordinate == coordinate);
 
       if (status == Status.Damaged || status == Status.Destroyed)
         impact.Hits++;

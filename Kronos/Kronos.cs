@@ -11,6 +11,7 @@ namespace Kronos
   public class Godfather : IPlayer
   {
     public God God { get; private set; }
+    public string Name { get { return God.Name; } }
     public World World { get; private set; }
 
     public Godfather()
@@ -18,10 +19,6 @@ namespace Kronos
       God = Olympus.SendGod();
       World = new World();
     }
-
-    #region IPlayer Members
-
-    public string Name { get { return God.Name; } }
 
     public void PlaceShips(IPlayerView playerView, ICollection<IVessel> ships)
     {
@@ -40,11 +37,9 @@ namespace Kronos
 
     public Shot YourTurn(IPlayerView playerView)
     {
-      Shot shot = God.Smite();
+      God.Smite();
 
-      return shot;
+      return God.Smote();
     }
-
-    #endregion
   }
 }

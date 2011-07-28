@@ -26,7 +26,7 @@ namespace Kronos
 
       Console.Clear();
       Console.Write(buffer);
-      Console.ReadKey();
+      //Console.ReadKey();
     }
 
     private static void RenderMap()
@@ -53,7 +53,7 @@ namespace Kronos
       }
 
       viewArea.Append("Shots fired: ").Append(God.Smites).AppendLine();
-      viewArea.Append("Target coordinates: ").Append(_map.Impact.X).Append(",").Append(_map.Impact.Y).AppendLine();
+      viewArea.Append("Target coordinates: ").Append(_map.Impact.Latitude).Append(",").Append(_map.Impact.Longitude).AppendLine();
 
       _consoleOutput = viewArea.ToString();
     }

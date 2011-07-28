@@ -1,14 +1,12 @@
-﻿using BattleShip.Interface;
-
-using Kronos.Worlds;
+﻿using Kronos.Worlds;
 using Kronos.Worlds.Directions;
 
 namespace Kronos.Minions
 {
   public class TargetingSystem
   {
-    public Coordinate CurrentPosition { get; set; }
-    public Direction Heading { get; set; }
+    public Coordinate Target { get; set; }
+    public Compass Direction { get; set; }
     public int Hits { get; set; }
     public int Speed { get; set; }
 
@@ -18,14 +16,12 @@ namespace Kronos.Minions
     public TargetingSystem(Boundaries boundaries)
     {
       _boundaries = boundaries;
-
-      CurrentPosition = new Coordinate(boundaries.West - 1, boundaries.South - 1);
     }
 
-    public TargetingSystem(Boundaries boundaries, Coordinate coordinate, Direction direction, int speed)
+    public TargetingSystem(Boundaries boundaries, Coordinate coordinate, Compass direction, int speed)
     {
-      CurrentPosition = new Coordinate(coordinate);
-      Heading = direction;
+      Target = new Coordinate(coordinate);
+      Direction = direction;
       Hits = 0;
       Speed = speed;
 
@@ -35,21 +31,7 @@ namespace Kronos.Minions
 
     public void Advance()
     {
-      switch (Heading)
-      {
-        case Direction.North:
-          MoveNorth();
-          break;
-        case Direction.East:
-          MoveEast();
-          break;
-        case Direction.South:
-          MoveSouth();
-          break;
-        case Direction.West:
-          MoveWest();
-          break;
-      }
+      Target.Move(Coordinate.GetHeading(Direction));
     }
 
     public void Calibrate()
@@ -62,77 +44,45 @@ namespace Kronos.Minions
 
     public void Reset()
     {
-      CurrentPosition = new Coordinate(_start);
+      Target = new Coordinate(_start);
     }
 
     public void Turn()
     {
-      switch (Heading)
+      switch (Direction)
       {
-        case Direction.North:
-          Heading = Direction.East;
+        case Compass.North:
+          Direction = Compass.East;
           break;
-        case Direction.East:
-          Heading = Direction.South;
+        case Compass.East:
+          Direction = Compass.South;
           break;
-        case Direction.South:
-          Heading = Direction.West;
+        case Compass.South:
+          Direction = Compass.West;
           break;
-        case Direction.West:
-          Heading = Direction.North;
+        case Compass.West:
+          Direction = Compass.North;
           break;
       }
     }
 
-    public bool UpdateVector()
+    public bool IsAtBoundary()
     {
-      bool wasOutOfBounds = false;
+      Coordinate state = new Coordinate(Target.Latitude, Target.Longitude);
 
-      if (CurrentPosition.X > _boundaries.East)
-      {
-        CurrentPosition.X = _boundaries.East;
-        wasOutOfBounds = true;
-      }
+      if (Target.Latitude > _boundaries.East)
+        Target.Latitude = _boundaries.East;
 
-      if (CurrentPosition.X < _boundaries.West)
-      {
-        CurrentPosition.X = _boundaries.West;
-        wasOutOfBounds = true;
-      }
+      if (Target.Latitude < _boundaries.West)
+        Target.Latitude = _boundaries.West;
 
-      if (CurrentPosition.Y > _boundaries.North)
-      {
-        CurrentPosition.Y = _boundaries.North;
-        wasOutOfBounds = true;
-      }
+      if (Target.Longitude > _boundaries.North)
+        Target.Longitude = _boundaries.North;
 
-      if (CurrentPosition.Y < _boundaries.South)
-      {
-        CurrentPosition.Y = _boundaries.South;
-        wasOutOfBounds = true;
-      }
+      if (Target.Longitude < _boundaries.South)
+        Target.Longitude = _boundaries.South;
 
-      return wasOutOfBounds;
-    }
-
-    private void MoveNorth()
-    {
-      CurrentPosition.Y += Speed;
-    }
-
-    private void MoveEast()
-    {
-      CurrentPosition.X += Speed;
-    }
-
-    private void MoveSouth()
-    {
-      CurrentPosition.Y -= Speed;
-    }
-
-    public void MoveWest()
-    {
-      CurrentPosition.X -= Speed;
+      return !Target.Equals(state);
     }
   }
 }

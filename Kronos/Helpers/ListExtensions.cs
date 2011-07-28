@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Kronos.Helpers;
+
 namespace Kronos
 {
   public static class ListExtensions
@@ -11,11 +13,10 @@ namespace Kronos
         throw new ArgumentNullException("list");
 
       int items = list.Count;
-      Random rnd = new Random();
 
       while (items > 1)
       {
-        int position = rnd.Next(0, items) % items;
+        int position = Dice.Next(0, items) % items;
 
         items--;
 

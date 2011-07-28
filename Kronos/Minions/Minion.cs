@@ -2,16 +2,18 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 
-using BattleShip.Interface;
-
+using Kronos.Worlds;
 using Kronos.Worlds.Directions;
 using Kronos.Worlds.Maps;
+using System;
+using Kronos.Helpers;
 
 namespace Kronos.Minions
 {
   public class Minion
   {
     public Coordinate Target { get; set; }
+    public int EnemySize { get { return _trackingVector == null ? 0 : _trackingVector.Hits; } }
     public Map Battlefield { get; set; }
     public MinionState State { get { return _state; } }
     public OrderType Order { get; set; }
@@ -27,8 +29,6 @@ namespace Kronos.Minions
       _battlePlan = new List<Coordinate>();
       _state = MinionState.Acquiring;
     }
-
-    #region Methods
 
     public void ObeyOrder()
     {
@@ -57,6 +57,9 @@ namespace Kronos.Minions
 
     public void CoverTracks(Position position)
     {
+      if (position == null)
+        throw new ArgumentNullException("position");
+
       if (Order == OrderType.Kill && position.Status != Status.Damaged)
         _state = MinionState.TargetLost;
 
@@ -67,32 +70,34 @@ namespace Kronos.Minions
         _state = MinionState.Acquiring;
 
       Battlefield.Update(position);
-      RemoveBattleplanItem(position.Coordinate);
+      RemoveBattlePlanItem(position.Coordinate);
     }
 
-    public void RemoveBattleplanItem(Coordinate zone)
+    public void RemoveBattlePlanItem(Coordinate zone)
     {
-      _battlePlan.Remove(_battlePlan.Find(c => c.X == zone.X && c.Y == zone.Y));
+      _battlePlan.Remove(_battlePlan.Find(c => c == zone));
     }
 
     public void ReadyForBattle()
     {
       List<Coordinate> battleplan = SurveyBattlefield();
 
-      _battlePlan = (battleplan.OrderBy(c => (c.X + c.Y) % 4)).ToList();
+      _battlePlan = battleplan.Where(c => (c.Latitude + c.Longitude) % 3 == 0).ToList();
+      //_battlePlan.Shuffle();
     }
-
-    #endregion
 
     private void Hunt()
     {
-      _huntingVector = new TargetingSystem(Battlefield.Boundaries, _battlePlan[0], Direction.North, 1);
+      if (_battlePlan.Count == 0)
+        _battlePlan = Battlefield.GetAll(Status.Hidden).ToList();
+
+      _huntingVector = new TargetingSystem(Battlefield.Boundaries, _battlePlan[Dice.Next(_battlePlan.Count - 1)], Compass.North, 1);
       _state = MinionState.Acquiring;
     }
 
     private void Kill()
     {
-      _trackingVector = new TargetingSystem(Battlefield.Boundaries, new Coordinate(Target), _huntingVector.Heading, 1);
+      _trackingVector = new TargetingSystem(Battlefield.Boundaries, new Coordinate(Target), _huntingVector.Direction, 1);
       _state = MinionState.TargetAcquired;
     }
 
@@ -101,14 +106,12 @@ namespace Kronos.Minions
       while (_state == MinionState.Acquiring)
         FindEnemy();
 
-      Target = _huntingVector.CurrentPosition;
+      Target = _huntingVector.Target;
     }
 
     private void FindEnemy()
     {
-      Status zoneStatus = Battlefield.StatusAt(_huntingVector.CurrentPosition);
-
-      //ShowMinion(_huntingVector.CurrentPosition, Status.Tracked);
+      Status zoneStatus = Battlefield.StatusAt(_huntingVector.Target);
 
       if (zoneStatus == Status.Hidden)
         _state = MinionState.TargetAcquired;
@@ -116,13 +119,10 @@ namespace Kronos.Minions
       {
         _huntingVector.Advance();
 
-        if (Battlefield.IsOutside(_huntingVector.CurrentPosition))
-        {
-          _huntingVector.UpdateVector();
+        if (_huntingVector.IsAtBoundary())
           _huntingVector.Turn();
-        }
 
-        if (!BattlePlan.Contains(_huntingVector.CurrentPosition))
+        if (!BattlePlan.Contains(_huntingVector.Target))
           Hunt();
       }
     }
@@ -140,12 +140,12 @@ namespace Kronos.Minions
         AttackEnemy();
 
       _state = MinionState.TargetAcquired;
-      Target = _trackingVector.CurrentPosition;
+      Target = _trackingVector.Target;
     }
 
     private void AttackEnemy()
     {
-      Status zoneStatus = Battlefield.StatusAt(_trackingVector.CurrentPosition);
+      Status zoneStatus = Battlefield.StatusAt(_trackingVector.Target);
 
       if (zoneStatus == Status.Hidden)
         _state = MinionState.Attacking;
@@ -158,26 +158,12 @@ namespace Kronos.Minions
         _trackingVector.Advance();
       }
 
-#if DEBUG
-      if (!Battlefield.IsOutside(_trackingVector.CurrentPosition))
-        ViewTrackingSystem(_trackingVector.CurrentPosition, Status.Attacked);
-#endif
-
-      if (_trackingVector.UpdateVector())
+      if (_trackingVector.IsAtBoundary())
       {
         _trackingVector.Reset();
         _trackingVector.Calibrate();
         _trackingVector.Advance();
       }
-    }
-
-    private void ViewTrackingSystem(Coordinate coordinate, Status status)
-    {
-      Status savedStatus = Battlefield.StatusAt(coordinate);
-
-      Battlefield.Update(coordinate, status);
-      Observer.Show(Battlefield);
-      Battlefield.Update(coordinate, savedStatus);
     }
 
     private List<Coordinate> SurveyBattlefield()
