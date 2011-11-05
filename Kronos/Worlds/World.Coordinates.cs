@@ -39,6 +39,19 @@ namespace Kronos.Worlds
       Longitude += coordinate.Longitude;
     }
 
+    public static Compass GetDirection(Coordinate first, Coordinate second)
+    {
+      Compass direction = new Compass();
+      Coordinate heading = first - second;
+
+      if (heading.Latitude == 0)
+        direction = heading.Longitude < 0 ? Compass.North : Compass.South;
+      if (heading.Longitude == 0)
+        direction = heading.Latitude < 0 ? Compass.East : Compass.West;
+
+      return direction;
+    }
+
     public static Coordinate GetHeading(Compass direction)
     {
       Coordinate coordinate = new Coordinate();
@@ -81,6 +94,28 @@ namespace Kronos.Worlds
     public BattleShip.Interface.Coordinate ToInterfaceCoordinate()
     {
       return new BattleShip.Interface.Coordinate(Latitude, Longitude);
+    }
+
+    public static Coordinate operator +(Coordinate first, Coordinate second)
+    {
+      if (first == null)
+        throw new ArgumentNullException("first");
+
+      if (second == null)
+        throw new ArgumentNullException("second");
+
+      return new Coordinate(first.Latitude + second.Latitude, first.Longitude + second.Longitude);
+    }
+
+    public static Coordinate operator -(Coordinate first, Coordinate second)
+    {
+      if (first == null)
+        throw new ArgumentNullException("first");
+
+      if (second == null)
+        throw new ArgumentNullException("second");
+
+      return new Coordinate(first.Latitude - second.Latitude, first.Longitude - second.Longitude);
     }
 
     public static bool operator ==(Coordinate left, Coordinate right)

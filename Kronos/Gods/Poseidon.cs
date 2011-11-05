@@ -16,6 +16,7 @@ namespace Kronos.Gods
 
     private List<Coordinate> _killHistory = new List<Coordinate>();
     private Minion _minion;
+    private Observer _observer;
 
     public Poseidon() { }
 
@@ -38,7 +39,7 @@ namespace Kronos.Gods
 
       if (defiles > 0)
       {
-        World.Enemies.Remove(World.Enemies.First(e => e.Length == Minion.EnemySize + 1));
+        World.Enemies.Remove(World.Enemies.First(e => e.Length == Minion.EnemySize));
 
         Minion.ReceiveOrders(OrderType.Hunt);
 
@@ -49,7 +50,8 @@ namespace Kronos.Gods
         EliminatePossibilities();
 
 #if DEBUG
-      Observer.Show(Minion.Battlefield);
+      if (_observer != null)
+        _observer.Show();
 #endif
     }
 
@@ -59,6 +61,12 @@ namespace Kronos.Gods
       _minion.Battlefield = World.Map;
       _minion.ReadyForBattle();
       _minion.ReceiveOrders(OrderType.Hunt);
+
+      //_observer = new Observer();
+      //_observer.Map = World.Map;
+      //_observer.ShowBattlefield = false;
+      //_observer.ShowEachTurn = false;
+      //_observer.ShowNeighbors = false;
     }
 
     public override void Smite()

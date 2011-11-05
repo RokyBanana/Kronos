@@ -55,32 +55,32 @@ namespace Kronos.Worlds.Maps
       return _impacts.Where(p => p.Status == status).Select(p => p.Coordinate);
     }
 
-    public char GetMarker(int latitude, int longitude)
+    public string GetMarker(int latitude, int longitude)
     {
-      char marker = ' ';
+      string marker = "";
 
       switch (StatusAt(latitude, longitude))
       {
         case Status.Hidden:
-          marker = ' ';
+          marker = " ";
           break;
         case Status.Explored:
-          marker = 'o';
+          marker = "O";
           break;
         case Status.Damaged:
-          marker = '!';
+          marker = "!";
           break;
         case Status.Destroyed:
-          marker = 'X';
+          marker = "X";
           break;
         case Status.Ignored:
-          marker = '.';
+          marker = ".";
           break;
         case Status.Attacked:
-          marker = '*';
+          marker = "*";
           break;
         case Status.Tracked:
-          marker = '?';
+          marker = "?";
           break;
       }
 
@@ -100,7 +100,7 @@ namespace Kronos.Worlds.Maps
       if (IsOutside(latitude, longitude))
         return Status.Outside;
 
-      return _impacts.Single<Position>(p => p.Coordinate.Latitude == latitude && p.Coordinate.Longitude == longitude).Status;
+      return _impacts.First<Position>(p => p.Coordinate.Latitude == latitude && p.Coordinate.Longitude == longitude).Status;
     }
 
     public void Update(Position position)
@@ -113,7 +113,7 @@ namespace Kronos.Worlds.Maps
 
     public void Update(Coordinate coordinate, Status status)
     {
-      Position impact = _impacts.Single<Position>(p => p.Coordinate == coordinate);
+      Position impact = _impacts.First<Position>(p => p.Coordinate == coordinate);
 
       if (status == Status.Damaged || status == Status.Destroyed)
         impact.Hits++;
@@ -123,11 +123,27 @@ namespace Kronos.Worlds.Maps
       _lastImpact = _impacts.IndexOf(impact);
     }
 
+    public void Update(Coordinate coordinate, int count)
+    {
+      if (coordinate == null)
+        throw new ArgumentNullException("coordinate");
+
+      if (StatusAt(coordinate) == Status.Damaged || StatusAt(coordinate) == Status.Destroyed)
+        count = 0;
+
+      _impacts.First<Position>(p => p.Coordinate == coordinate).NeighborCount = count;
+    }
+
     private void CreateMap()
     {
       for (int latitude = Boundaries.West; latitude <= Boundaries.East; latitude++)
         for (int longitude = Boundaries.South; longitude <= Boundaries.North; longitude++)
           _impacts.Add(new Position(new Coordinate(latitude, longitude), Status.Hidden));
+    }
+
+    public int Loneliness(int latitude, int longitude)
+    {
+      return Layout.First(c => c.Coordinate.Latitude == latitude && c.Coordinate.Longitude == longitude).NeighborCount;
     }
   }
 }

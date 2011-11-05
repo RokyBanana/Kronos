@@ -6,6 +6,7 @@ namespace Kronos.Worlds.Maps
   {
     public Coordinate Coordinate { get; set; }
     public int Hits { get; set; }
+    public int NeighborCount { get; set; }
     public Status Status { get; set; }
 
     public Position()

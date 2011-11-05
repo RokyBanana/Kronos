@@ -7,18 +7,17 @@ using Kronos.Worlds.Maps;
 
 namespace Kronos
 {
-  public static class Observer
+  public class Observer
   {
-    private static Map _map;
+    public bool ShowBattlefield { get; set; }
+    public bool ShowEachTurn { get; set; }
+    public bool ShowNeighbors { get; set; }
+    public Map Map { get; set; }
+
     private static string _consoleOutput;
 
-    public static void Show(Map map)
+    public void Show()
     {
-      if (map == null)
-        throw new ArgumentNullException("map");
-
-      _map = map;
-
       RenderMap();
 
       char[] buffer = new char[_consoleOutput.Length];
@@ -26,34 +25,46 @@ namespace Kronos
 
       Console.Clear();
       Console.Write(buffer);
-      //Console.ReadKey();
+
+      if(ShowEachTurn)
+        Console.ReadKey();
     }
 
-    private static void RenderMap()
+    private void RenderMap()
     {
       StringBuilder viewArea = new StringBuilder();
 
-      for (int longitude = _map.Boundaries.North; longitude >= _map.Boundaries.South; longitude--)
+      if (ShowBattlefield)
       {
-        viewArea.Append(longitude.ToString(CultureInfo.InvariantCulture).PadLeft(2)).Append(": ");
-
-        for (int latitude = _map.Boundaries.West; latitude <= _map.Boundaries.East; latitude++)
-          viewArea.AppendFormat("{0} ", _map.GetMarker(latitude, longitude));
-
-        if (longitude == _map.Boundaries.South)
+        for (int longitude = Map.Boundaries.North; longitude >= Map.Boundaries.South; longitude--)
         {
-          viewArea.AppendLine().Append("    ");
+          viewArea.Append(longitude.ToString(CultureInfo.InvariantCulture).PadLeft(2)).Append(": ");
 
-          for (int _x = _map.Boundaries.West; _x <= _map.Boundaries.East; _x++)
-            viewArea.Append(_x).Append(" ");
+          for (int latitude = Map.Boundaries.West; latitude <= Map.Boundaries.East; latitude++)
+            if (ShowNeighbors)
+              viewArea.Append(Map.Loneliness(latitude, longitude).ToString().PadLeft(3));
+            else
+              viewArea.Append(Map.GetMarker(latitude, longitude).PadLeft(3));
+
+          if (longitude == Map.Boundaries.South)
+          {
+            viewArea.AppendLine().Append("    ");
+
+            for (int xAxis = Map.Boundaries.West; xAxis <= Map.Boundaries.East; xAxis++)
+              viewArea.Append("-".PadLeft(3));
+
+            viewArea.AppendLine().Append("    ");
+
+            for (int xAxis = Map.Boundaries.West; xAxis <= Map.Boundaries.East; xAxis++)
+              viewArea.Append(xAxis.ToString().PadLeft(3));
+          }
+
+          viewArea.AppendLine();
+          viewArea.AppendLine();
         }
-
-        viewArea.AppendLine();
-        viewArea.AppendLine();
       }
 
       viewArea.Append("Shots fired: ").Append(God.Smites).AppendLine();
-      viewArea.Append("Target coordinates: ").Append(_map.Impact.Latitude).Append(",").Append(_map.Impact.Longitude).AppendLine();
 
       _consoleOutput = viewArea.ToString();
     }

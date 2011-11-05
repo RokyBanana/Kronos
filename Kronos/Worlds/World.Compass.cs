@@ -2,13 +2,9 @@
 {
   public enum Compass
   {
-    East,
     North,
-    Northeast,
-    Northwest,
+    East,
     South,
-    Southeast,
-    Southwest,
     West
   }
 }

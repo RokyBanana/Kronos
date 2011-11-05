@@ -12,6 +12,7 @@ namespace Kronos.Worlds
 {
   public class World
   {
+    public Boolean AvoidEdge { get; set; }
     public Boundaries Boundaries { get; set; }
     public Collection<IVessel> Enemies { get { return new Collection<IVessel>(_enemies); } }
     public Coordinate RandomCoordinate { get { return new Coordinate(Dice.Next(Boundaries.East) + Boundaries.West, Dice.Next(Boundaries.North) + Boundaries.South); } }
@@ -47,7 +48,8 @@ namespace Kronos.Worlds
         if (orientation == Orientation.Vertical && coordinate.Longitude - enemy.Length < 1)
           coordinate.Longitude = enemy.Length;
 
-        AvoidEdges(coordinate);
+        if(AvoidEdge)
+          AvoidEdges(coordinate);
 
         while (!world.PutShip(enemy.SailTo(coordinate.ToInterfaceCoordinate(), orientation)))
         {
@@ -66,7 +68,8 @@ namespace Kronos.Worlds
             coordinate = RandomCoordinate;
           }
 
-          AvoidEdges(coordinate);
+          if (AvoidEdge)
+            AvoidEdges(coordinate);
         }
       }
     }

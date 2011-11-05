@@ -22,7 +22,7 @@ namespace Kronos.Minions
     {
       Target = new Coordinate(coordinate);
       Direction = direction;
-      Hits = 0;
+      Hits = 1;
       Speed = speed;
 
       _boundaries = boundaries;
