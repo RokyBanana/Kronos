@@ -62,11 +62,11 @@ namespace Kronos.Gods
       _minion.ReadyForBattle();
       _minion.ReceiveOrders(OrderType.Hunt);
 
-      //_observer = new Observer();
-      //_observer.Map = World.Map;
-      //_observer.ShowBattlefield = false;
-      //_observer.ShowEachTurn = false;
-      //_observer.ShowNeighbors = false;
+      _observer = new Observer();
+      _observer.Map = World.Map;
+      _observer.ShowBattlefield = false;
+      _observer.ShowEachTurn = false;
+      _observer.ShowNeighbors = false;
     }
 
     public override void Smite()

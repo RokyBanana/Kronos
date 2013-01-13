@@ -4,3 +4,4 @@ publish/
 *.suo
 *.csproj.user
 *.vs10x
+*.vsp
