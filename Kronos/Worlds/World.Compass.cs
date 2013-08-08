@@ -1,10 +1,10 @@
 ﻿namespace Kronos.Worlds.Directions
 {
-  public enum Compass
-  {
-    North,
-    East,
-    South,
-    West
-  }
+    public enum Compass
+    {
+        North,
+        East,
+        South,
+        West
+    }
 }

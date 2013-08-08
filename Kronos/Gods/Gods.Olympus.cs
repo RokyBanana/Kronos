@@ -5,11 +5,11 @@ using System.Text;
 
 namespace Kronos.Gods
 {
-  public static class Olympus
-  {
-    public static God SendGod()
+    public static class Olympus
     {
-      return new Poseidon();
+        public static God SendGod()
+        {
+            return new Poseidon();
+        }
     }
-  }
 }

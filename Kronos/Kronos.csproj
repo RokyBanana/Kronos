@@ -41,7 +41,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BattleShip.Interface">
-      <HintPath>..\..\Battleship\BattleShip.Interface.dll</HintPath>
+      <HintPath>..\..\Battleship\BattleShip.Interface\bin\Release\BattleShip.Interface.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />

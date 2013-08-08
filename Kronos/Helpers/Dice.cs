@@ -3,27 +3,27 @@ using System.Security.Cryptography;
 
 namespace Kronos.Helpers
 {
-  public class Dice
-  {
-    private static Random r;
-
-    static Dice()
+    public class Dice
     {
-      var generator = RandomNumberGenerator.Create();
-      byte[] b = new byte[4];
+        private static Random r;
 
-      generator.GetBytes(b);
-      r = new Random(BitConverter.ToInt32(b, 0));
-    }
+        static Dice()
+        {
+            var generator = RandomNumberGenerator.Create();
+            byte[] b = new byte[4];
 
-    public static int Next(int value)
-    {
-      return r.Next(value);
-    }
+            generator.GetBytes(b);
+            r = new Random(BitConverter.ToInt32(b, 0));
+        }
 
-    public static int Next(int minValue, int maxValue)
-    {
-      return r.Next(minValue, maxValue);
+        public static int Next(int value)
+        {
+            return r.Next(value);
+        }
+
+        public static int Next(int minValue, int maxValue)
+        {
+            return r.Next(minValue, maxValue);
+        }
     }
-  }
 }

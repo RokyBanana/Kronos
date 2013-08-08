@@ -1,9 +1,9 @@
 ﻿namespace Kronos.Minions
 {
-  public enum OrderType
-  {
-    Hunt,
-    Kill,
-    Retire
-  }
+    public enum OrderType
+    {
+        Hunt,
+        Kill,
+        Retire
+    }
 }
