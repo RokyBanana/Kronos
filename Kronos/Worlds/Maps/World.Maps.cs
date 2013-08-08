@@ -100,7 +100,7 @@ namespace Kronos.Worlds.Maps
             if (IsOutside(latitude, longitude))
                 return Status.Outside;
 
-            return _impacts.First<Position>(p => p.Coordinate.Latitude == latitude && p.Coordinate.Longitude == longitude).Status;
+            return _impacts.Single<Position>(p => p.Coordinate.Latitude == latitude && p.Coordinate.Longitude == longitude).Status;
         }
 
         public void Update(Position position)
